@@ -1,13 +1,13 @@
 ﻿namespace Codex.Dtos
 {
-    public class DecorateInDto<TDto, TOut, TError>        
+    public readonly struct DecorateInDto<TDto, TOut, TError>        
         where TError : class
     {
-        public TDto In { get; set; }
+        public readonly TDto In { get; init; }
 
-        public ResultOr<TOut, TError>? Out { get; set; }
+        public readonly ResultOr<TOut, TError> Out { get; init; }
     
-        public DecorateInDto(TDto dto, ResultOr<TOut, TError>? result)
+        public DecorateInDto(TDto dto, ResultOr<TOut, TError> result)
         {
             In = dto; 
             Out = result;

@@ -88,10 +88,10 @@ namespace DemoWeb.Controllers
     {
         protected override async Task<ResultOr<string, ErrorResult>> DecorateActionAsync(DecorateInDto<ParseNumberDto, string, ErrorResult> dto, CancellationToken token)
         {
-            if (dto.Out?.IsSuccess == false)
+            if (dto.Out.IsSuccess == false)
                 return dto.Out;
 
-            return await Task.FromResult((dto.Out?.Result ?? string.Empty) + " ( ͡° ͜ʖ ͡°)");
+            return await Task.FromResult((dto.Out.Result ?? string.Empty) + " ( ͡° ͜ʖ ͡°)");
         }
     }
 }

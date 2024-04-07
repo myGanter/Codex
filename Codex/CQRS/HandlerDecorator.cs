@@ -68,9 +68,9 @@ namespace Codex.CQRS
 
             if (!decorator.IsAfter)
             {
-                var result = DecorateAction(new DecorateInDto<TDto, TOut, TError>(dto, null));
+                var result = DecorateAction(new DecorateInDto<TDto, TOut, TError>(dto, default));
 
-                if (result is not null && !result.IsSuccess)
+                if (!result.IsSuccess)
                     return result;
             }
 
@@ -105,9 +105,9 @@ namespace Codex.CQRS
 
             if (!decorator.IsAfter)
             {
-                var result = await DecorateActionAsync(new DecorateInDto<TDto, TOut, TError>(dto, null), token);
+                var result = await DecorateActionAsync(new DecorateInDto<TDto, TOut, TError>(dto, default), token);
 
-                if (result is not null && !result.IsSuccess)
+                if (!result.IsSuccess)
                     return result;
             }
 

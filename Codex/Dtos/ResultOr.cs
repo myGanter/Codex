@@ -1,11 +1,11 @@
 ﻿namespace Codex.Dtos
 {
-    public class ResultOr<TResult, TError>
+    public readonly struct ResultOr<TResult, TError>
         where TError : class
     {
-        public TResult? Result { get; set; }
+        public readonly TResult? Result { get; init; }
 
-        public TError? Error { get; set; }
+        public readonly TError? Error { get; init; }
 
         public bool IsSuccess { get => Error is null; }
 

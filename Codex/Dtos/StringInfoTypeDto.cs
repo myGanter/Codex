@@ -22,7 +22,7 @@
 
         public override bool Equals(object? obj)
         {
-            if (obj is null || !(obj is StringInfoTypeDto other))
+            if (obj is null || obj is not StringInfoTypeDto other)
                 return false;
 
             return Equals(other);

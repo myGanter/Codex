@@ -46,7 +46,7 @@ namespace DemoWeb.Controllers
     public class ParseNumberDto : IDtoContract<string, ErrorResult>
     {
         [Required]
-        [RegularExpression(@"^(-?[1-9]+\d*([.]\d+)?)$|^(-?0[.]\d*[1-9]+)$|^0$|^0.0$", ErrorMessage = "Validation faild.")]
+        [RegularExpression(@"[+-]?([0-9]*[.])?[0-9]+", ErrorMessage = "Validation faild.")]
         public string Number { get; set; }
     }
 
@@ -88,7 +88,7 @@ namespace DemoWeb.Controllers
     {
         protected override async Task<ResultOr<string, ErrorResult>> DecorateActionAsync(DecorateInDto<ParseNumberDto, string, ErrorResult> dto, CancellationToken token)
         {
-            if (dto.Out.IsSuccess == false)
+            if (!dto.Out.IsSuccess)
                 return dto.Out;
 
             return await Task.FromResult((dto.Out.Result ?? string.Empty) + " ( ͡° ͜ʖ ͡°)");

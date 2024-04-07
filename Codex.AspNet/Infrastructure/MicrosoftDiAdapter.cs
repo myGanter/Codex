@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Codex.Dispatcher;
 
-namespace Codex.AspNetCore.Infrastructure
+namespace Codex.AspNet.Infrastructure
 {
     internal class MicrosoftDiAdapter : IDiAdapter
     {

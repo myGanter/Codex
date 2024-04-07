@@ -1,10 +1,10 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Codex.Dispatcher;
-using Codex.AspNetCore.Infrastructure;
+using Codex.AspNet.Infrastructure;
 using Codex.Exceptions;
 using Codex.CQRS;
 
-namespace Codex.AspNetCore
+namespace Codex.AspNet
 {
     public static class ServiceCollectionExtensions
     {

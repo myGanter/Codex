@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Codex", "Codex\Codex.csproj
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Codex.Tests", "Codex.Tests\Codex.Tests.csproj", "{60F23973-D0A7-4122-A11F-C7361369C10B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Codex.AspNetCore", "Codex.AspNetCore\Codex.AspNetCore.csproj", "{08AA1630-5171-4F38-B27F-5FC3ADB99815}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Codex.AspNet", "Codex.AspNet\Codex.AspNet.csproj", "{08AA1630-5171-4F38-B27F-5FC3ADB99815}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DemoWeb", "DemoWeb\DemoWeb.csproj", "{20BED829-A4C7-4667-A156-DFC764E15890}"
 EndProject

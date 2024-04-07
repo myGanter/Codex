@@ -19,7 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Codex.AspNetCore\Codex.AspNetCore.csproj" />
+    <ProjectReference Include="..\Codex.AspNet\Codex.AspNet.csproj" />
   </ItemGroup>
 
 </Project>

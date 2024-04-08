@@ -1,4 +1,5 @@
 ﻿using Codex.CQRS;
+using Codex.Extensions;
 using Codex.Dispatcher;
 using Codex.Dtos;
 using Microsoft.AspNetCore.Mvc;
@@ -24,17 +25,15 @@ namespace DemoWeb.Controllers
         [HttpPost(nameof(ParseNumber1))]
         public async Task<IActionResult> ParseNumber1([FromBody] ParseNumberDto dto)
         {
-            var result = await _dispatcher.DispatchResultAsync<ParseNumberDto, string, ErrorResult>(dto);
-
-            return result.IsSuccess ? Ok(result.Result) : BadRequest(result.Error);
+            return await _dispatcher.DispatchResultAsync<ParseNumberDto, string, ErrorResult>(dto)
+                .MatchAsync(x => (IActionResult)Ok(x), err => (IActionResult)BadRequest(err));
         }
 
         [HttpPost(nameof(ParseNumber2))]
         public async Task<IActionResult> ParseNumber2([FromBody] ParseNumberDto dto)
         {
-            var result = (ResultOr<string, ErrorResult>)await _dispatcher.DispatchResultAsync(dto);
-
-            return result.IsSuccess ? Ok(result.Result) : BadRequest(result.Error);
+            return ((ResultOr<string, ErrorResult>)await _dispatcher.DispatchResultAsync(dto))
+                .Match(x => (IActionResult)Ok(x), err => (IActionResult)BadRequest(err));
         }
     }
 

@@ -5,6 +5,7 @@ using Codex.Dtos;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 using System.Globalization;
+using Codex.AspNet.Dtos;
 
 namespace DemoWeb.Controllers
 {
@@ -25,51 +26,28 @@ namespace DemoWeb.Controllers
         [HttpPost(nameof(ParseNumber1))]
         public async Task<IActionResult> ParseNumber1([FromBody] ParseNumberDto dto)
         {
-            return await _dispatcher.DispatchResultAsync<ParseNumberDto, string, ErrorResult>(dto)
+            return await _dispatcher.DispatchResultAsync<ParseNumberDto, string, ErrorDto>(dto)
                 .MatchAsync(x => (IActionResult)Ok(x), err => (IActionResult)BadRequest(err));
         }
 
         [HttpPost(nameof(ParseNumber2))]
         public async Task<IActionResult> ParseNumber2([FromBody] ParseNumberDto dto)
         {
-            return ((ResultOr<string, ErrorResult>)await _dispatcher.DispatchResultAsync(dto))
+            return ((ResultOr<string, ErrorDto>)await _dispatcher.DispatchResultAsync(dto))
                 .Match(x => (IActionResult)Ok(x), err => (IActionResult)BadRequest(err));
         }
     }
 
-    public class ErrorResult
-    {
-        public string Error { get; set; }
-    }
-
-    public class ParseNumberDto : IDtoContract<string, ErrorResult>
+    public class ParseNumberDto : IDtoContract<string, ErrorDto>
     {
         [Required]
         [RegularExpression(@"[+-]?([0-9]*[.])?[0-9]+", ErrorMessage = "Validation faild.")]
         public string Number { get; set; }
     }
 
-    public class ValidationAsyncDecorator<TDto, TOut> : AsyncHandlerDecorator<TDto, TOut, ErrorResult>
-        where TOut : class
-        where TDto : IDtoContract<TOut, ErrorResult>
+    public class ParseNumberAsyncHandler : IAsyncHandler<ParseNumberDto, string, ErrorDto>
     {
-        protected override async Task<ResultOr<TOut, ErrorResult>> DecorateActionAsync(DecorateInDto<TDto, TOut, ErrorResult> dto, CancellationToken token)
-        {
-            var context = new ValidationContext(dto.In);
-            var results = new List<ValidationResult>();
-
-            if (!Validator.TryValidateObject(dto.In, context, results, true))
-            {
-                return new ErrorResult() { Error = string.Join(", ", results.Select(x => x.ErrorMessage)) };
-            }
-
-            return await Task.FromResult(default(TOut));
-        }
-    }
-
-    public class ParseNumberAsyncHandler : IAsyncHandler<ParseNumberDto, string, ErrorResult>
-    {
-        public async Task<ResultOr<string, ErrorResult>> HandleAsync(ParseNumberDto dto, CancellationToken token = default)
+        public async Task<ResultOr<string, ErrorDto>> HandleAsync(ParseNumberDto dto, CancellationToken token = default)
         {
             var nfi = new NumberFormatInfo
             {
@@ -83,9 +61,9 @@ namespace DemoWeb.Controllers
         }
     }
 
-    public class ParseNumberAfterDecorator : AsyncHandlerDecorator<ParseNumberDto, string, ErrorResult>
+    public class ParseNumberAfterDecorator : AsyncHandlerDecorator<ParseNumberDto, string, ErrorDto>
     {
-        protected override async Task<ResultOr<string, ErrorResult>> DecorateActionAsync(DecorateInDto<ParseNumberDto, string, ErrorResult> dto, CancellationToken token)
+        protected override async Task<ResultOr<string, ErrorDto>> DecorateActionAsync(DecorateInDto<ParseNumberDto, string, ErrorDto> dto, CancellationToken token)
         {
             if (!dto.Out.IsSuccess)
                 return dto.Out;

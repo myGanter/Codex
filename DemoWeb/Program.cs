@@ -1,4 +1,6 @@
 using Codex.AspNet;
+using Codex.AspNet.Decorators;
+using Codex.AspNet.Dtos;
 using Codex.Cache;
 using Codex.CQRS;
 using DemoWeb.Controllers;
@@ -18,14 +20,13 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddCodex();
 
 //Handlers & decorators
-builder.Services.AddScoped<IAsyncHandler<ParseNumberDto, string, ErrorResult>, ParseNumberAsyncHandler>();
-builder.Services.AddDecorator(typeof(ValidationAsyncDecorator<,>));
+builder.Services.AddScoped<IAsyncHandler<ParseNumberDto, string, ErrorDto>, ParseNumberAsyncHandler>();
 builder.Services.AddDecorator(typeof(ParseNumberAfterDecorator));
 
 //Configure pipeline
-DecoratorsPipeLine.FromAsyncHandler<ParseNumberDto, string, ErrorResult>()
-    .Before<IAsyncHandler<ParseNumberDto, string, ErrorResult>, ValidationAsyncDecorator<ParseNumberDto, string>>()
-    .After<IAsyncHandler<ParseNumberDto, string, ErrorResult>, ParseNumberAfterDecorator>();
+DecoratorsPipeLine.FromAsyncHandler<ParseNumberDto, string, ErrorDto>()
+    .Before<IAsyncHandler<ParseNumberDto, string, ErrorDto>, AsyncValidationDecorator<ParseNumberDto, string>>()
+    .After<IAsyncHandler<ParseNumberDto, string, ErrorDto>, ParseNumberAfterDecorator>();
 
 var app = builder.Build();
 

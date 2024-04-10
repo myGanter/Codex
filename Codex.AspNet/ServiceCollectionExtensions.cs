@@ -3,6 +3,7 @@ using Codex.Dispatcher;
 using Codex.AspNet.Infrastructure;
 using Codex.Exceptions;
 using Codex.CQRS;
+using Codex.AspNet.Decorators;
 
 namespace Codex.AspNet
 {
@@ -16,7 +17,22 @@ namespace Codex.AspNet
             services.AddScoped<IDiAdapter, MicrosoftDiAdapter>();
             services.AddScoped<IDispatcher, Dispatcher.Dispatcher>();
 
+            AddStandardDecorators(services);
+
             return services;
+        }
+
+        private static void AddStandardDecorators(IServiceCollection services)
+        {
+            services.AddDecorator(typeof(SaveChangesDecorator<>));
+            services.AddDecorator(typeof(SaveChangesDecorator<,,>));
+            services.AddDecorator(typeof(AsyncSaveChangesDecorator<>));
+            services.AddDecorator(typeof(AsyncSaveChangesDecorator<,,>));
+
+            services.AddDecorator(typeof(ValidationDecorator<>));
+            services.AddDecorator(typeof(ValidationDecorator<,>));
+            services.AddDecorator(typeof(AsyncValidationDecorator<>));
+            services.AddDecorator(typeof(AsyncValidationDecorator<,>));
         }
 
         public static IServiceCollection AddDecorator(this IServiceCollection services, Type decoratorType)

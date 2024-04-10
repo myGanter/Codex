@@ -35,12 +35,15 @@ namespace Codex.AspNet.Decorators
     {
         protected override ResultOr<TOut, ErrorDto> DecorateAction(DecorateInDto<TDto, TOut, ErrorDto> dto)
         {
-            var validationResult = ValidateHalper.GetErrorValidationResultOrNull(dto.In);
+            return dto.Out.Match(x => 
+            {
+                var validationResult = ValidateHalper.GetErrorValidationResultOrNull(dto.In);
 
-            if (validationResult is not null)
-                return ErrorDto.MapTo(validationResult);
+                if (validationResult is not null)
+                    return ErrorDto.MapTo(validationResult);
 
-            return dto.Out;
+                return dto.Out;
+            });            
         }
     }
 
@@ -49,12 +52,15 @@ namespace Codex.AspNet.Decorators
     {
         protected override Task<ResultOr<TOut, ErrorDto>> DecorateActionAsync(DecorateInDto<TDto, TOut, ErrorDto> dto, CancellationToken token)
         {
-            var validationResult = ValidateHalper.GetErrorValidationResultOrNull(dto.In);
+            return dto.Out.MatchAsync(x => 
+            {
+                var validationResult = ValidateHalper.GetErrorValidationResultOrNull(dto.In);
 
-            if (validationResult is not null)
-                return Task.FromResult(new ResultOr<TOut, ErrorDto>(ErrorDto.MapTo(validationResult)));
+                if (validationResult is not null)
+                    return Task.FromResult(new ResultOr<TOut, ErrorDto>(ErrorDto.MapTo(validationResult)));
 
-            return Task.FromResult(dto.Out);
+                return Task.FromResult(dto.Out);
+            });
         }
     }
 }

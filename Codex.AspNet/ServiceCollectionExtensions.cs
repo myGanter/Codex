@@ -4,6 +4,7 @@ using Codex.AspNet.Infrastructure;
 using Codex.Exceptions;
 using Codex.CQRS;
 using Codex.AspNet.Decorators;
+using Codex.AspNet.Services;
 
 namespace Codex.AspNet
 {
@@ -18,8 +19,14 @@ namespace Codex.AspNet
             services.AddScoped<IDispatcher, Dispatcher.Dispatcher>();
 
             AddStandardDecorators(services);
+            AddServices(services);
 
             return services;
+        }
+
+        private static void AddServices(IServiceCollection services)
+        {
+            services.AddScoped<TransactionService>();
         }
 
         private static void AddStandardDecorators(IServiceCollection services)
@@ -33,6 +40,16 @@ namespace Codex.AspNet
             services.AddDecorator(typeof(ValidationDecorator<,>));
             services.AddDecorator(typeof(AsyncValidationDecorator<>));
             services.AddDecorator(typeof(AsyncValidationDecorator<,>));
+
+            services.AddDecorator(typeof(BeginTransactionDecorator<>));
+            services.AddDecorator(typeof(BeginTransactionDecorator<,,>));
+            services.AddDecorator(typeof(AsyncBeginTransactionDecorator<>));
+            services.AddDecorator(typeof(AsyncBeginTransactionDecorator<,,>));
+
+            services.AddDecorator(typeof(CommitTransactionDecorator<>));
+            services.AddDecorator(typeof(CommitTransactionDecorator<,,>));
+            services.AddDecorator(typeof(AsyncCommitTransactionDecorator<>));
+            services.AddDecorator(typeof(AsyncCommitTransactionDecorator<,,>));
         }
 
         public static IServiceCollection AddDecorator(this IServiceCollection services, Type decoratorType)

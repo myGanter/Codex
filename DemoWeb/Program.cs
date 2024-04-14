@@ -4,6 +4,8 @@ using Codex.AspNet.Dtos;
 using Codex.Cache;
 using Codex.CQRS;
 using DemoWeb.Controllers;
+using DemoWeb.DataAccess;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +17,9 @@ builder.Services.AddControllers()
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+var connectionString = builder.Configuration.GetSection("SQLiteConnectionString").Value;
+builder.Services.AddDbContext<DbContext, DemoWebSQLiteContext>(x => x.UseSqlite(connectionString));
 
 //Codex infrastructure
 builder.Services.AddCodex();

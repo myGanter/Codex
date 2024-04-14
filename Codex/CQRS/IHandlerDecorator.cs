@@ -2,8 +2,8 @@
 {
     public interface IHandlerDecorator<THandler>
     {
-        bool IsAfter { get; internal set; }
+        bool IsAfter { get; set; }
 
-        THandler DecorateHandler { get; internal set; }
+        THandler DecorateHandler { get; set; }
     }
 }

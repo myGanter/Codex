@@ -34,7 +34,7 @@ namespace Codex.AspNet.Dtos
         public static ErrorDto TeapotError(string description) => new ErrorDto(TeapotTextError, description);
 
         public static ErrorDto MapTo(IEnumerable<ValidationResult>? validationResults) => 
-            new ErrorDto(ValidationTextError, "The input data of the request has incorrect values",
+            new ErrorDto(ValidationTextError, "The input Dto has an incorrect value.",
                 validationResults?.Where(x => x.MemberNames is not null)
                 .SelectMany(x => x.MemberNames, (x, y) => new { Member = y, ErrorText = x.ErrorMessage ?? string.Empty })
                 .GroupBy(x => x.Member, x => x.ErrorText)

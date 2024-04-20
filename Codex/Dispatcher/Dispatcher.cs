@@ -236,12 +236,17 @@ namespace Codex.Dispatcher
                         .GetInterfaces()
                         .First(x => x.Name == tHandlerType.Name && x.Namespace == tHandlerType.Namespace);
 
-                    var dynamicGenericTypes = decInf.DecoratorType
-                        .GetGenericArguments()
-                        .Select(x => tHandlerType.GenericTypeArguments[Array.IndexOf(decoratorHandlerType.GenericTypeArguments, x)])
-                        .ToArray();
+                    var decoratorType = decInf.DecoratorType;
 
-                    var decoratorType = decInf.DecoratorType.MakeGenericType(dynamicGenericTypes);
+                    if (decInf.DecoratorType.IsGenericTypeDefinition)
+                    {
+                        var dynamicGenericTypes = decInf.DecoratorType
+                            .GetGenericArguments()
+                            .Select(x => tHandlerType.GenericTypeArguments[Array.IndexOf(decoratorHandlerType.GenericTypeArguments, x)])
+                            .ToArray();
+
+                        decoratorType = decInf.DecoratorType.MakeGenericType(dynamicGenericTypes);
+                    }
 
                     return new TPipe()
                     {

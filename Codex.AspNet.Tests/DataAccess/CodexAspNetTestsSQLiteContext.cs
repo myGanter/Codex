@@ -7,6 +7,8 @@ namespace Codex.AspNet.Tests.DataAccess
     {
         public DbSet<SaveChangesDecoratorModel> SaveChangesDecoratorModels { get; set; }
 
+        public DbSet<TransactionDecoratorModel> TransactionDecoratorModels { get; set; }
+
         public CodexAspNetTestsSQLiteContext(DbContextOptions<CodexAspNetTestsSQLiteContext> options)
             : base(options)
         {

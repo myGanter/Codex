@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.Collections.Concurrent;
 
 namespace Codex.Cache
 {
@@ -7,8 +8,8 @@ namespace Codex.Cache
     {
         private static readonly Dictionary<TKey, HashSet<TValue>> _values;
 
-        private static readonly Dictionary<TKey, Lazy<ReadOnlyCollection<TValue>>> _readValues;
-
+        private static readonly ConcurrentDictionary<TKey, Lazy<ReadOnlyCollection<TValue>>> _readValues;
+        
         private static readonly ReadWriteLocker _locker;
 
         private static readonly ReadOnlyCollection<TValue> _emptyValue;
@@ -17,7 +18,7 @@ namespace Codex.Cache
         {
             _values = new Dictionary<TKey, HashSet<TValue>>();
             _locker = new ReadWriteLocker();
-            _readValues = new Dictionary<TKey, Lazy<ReadOnlyCollection<TValue>>>();
+            _readValues = new ConcurrentDictionary<TKey, Lazy<ReadOnlyCollection<TValue>>>();
             _emptyValue = new ReadOnlyCollection<TValue>(new List<TValue>());
         }
 
@@ -29,10 +30,11 @@ namespace Codex.Cache
                 {
                     return _values[key].ToList().AsReadOnly();
                 }
-            });
+            }, true);
         }
 
-        public static ReadOnlyCollection<TValue> Get(TKey key) => _readValues[key].Value;
+        public static ReadOnlyCollection<TValue> Get(TKey key) 
+            => _readValues[key].Value;
 
         public static bool TryGet(TKey key, out ReadOnlyCollection<TValue> value)
         {
@@ -47,9 +49,7 @@ namespace Codex.Cache
         }
 
         public static bool ContainsKey(TKey key) 
-        {
-            return _readValues.ContainsKey(key);
-        }
+            => _readValues.ContainsKey(key);
 
         public static void Add(TKey key, TValue value)
         {
@@ -76,7 +76,7 @@ namespace Codex.Cache
             using (_locker.WriteLock())
             {
                 _values.Remove(key);
-                _readValues.Remove(key);
+                _readValues.Remove(key, out var value);
             }
         }
     }

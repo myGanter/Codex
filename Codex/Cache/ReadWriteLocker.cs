@@ -1,6 +1,6 @@
 ﻿namespace Codex.Cache
 {
-    internal class ReadWriteLocker : IDisposable
+    public class ReadWriteLocker : IDisposable
     {
         private class WriteLockToken : IDisposable
         {

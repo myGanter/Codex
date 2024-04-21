@@ -28,7 +28,7 @@ namespace Codex.Cache
                 {
                     return _values.ToList().AsReadOnly();
                 }
-            });
+            }, true);
         }
 
         public static void AddRange(IEnumerable<TValue> values)

@@ -1,6 +1,6 @@
 ﻿namespace Codex.Dtos
 {
-    public interface IDtoContract<TOut, TError>
+    public interface IDtoContract<in TOut, in TError>
         where TError : class
     { }
 }

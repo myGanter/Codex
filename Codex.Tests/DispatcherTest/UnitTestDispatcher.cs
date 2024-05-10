@@ -211,7 +211,7 @@ namespace Codex.Tests.DispatcherTest
             var dto = new TestDto<uint>();
             var expected = $"{nameof(TestAsyncHandler<TestDto<uint>>)}";
 
-            _dispatcher.DispatchAsync(dto, default, false).Wait();
+            _dispatcher.DispatchAsync(dto, false, default).Wait();
 
             Assert.Equal(dto.PipeLineLog, expected);
         }
@@ -313,7 +313,7 @@ namespace Codex.Tests.DispatcherTest
             var dto = new TestDto<uint, uint>();
             var expected = $"{nameof(TestAsyncResultHandler<TestDto<uint, uint>, uint>)}";
 
-            _dispatcher.DispatchResultAsync<TestDto<uint, uint>, uint, TestErrorResult>(dto, default, false).Wait();
+            _dispatcher.DispatchResultAsync<TestDto<uint, uint>, uint, TestErrorResult>(dto, false, default).Wait();
 
             Assert.Equal(dto.PipeLineLog, expected);
         }

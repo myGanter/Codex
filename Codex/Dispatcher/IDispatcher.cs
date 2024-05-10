@@ -8,9 +8,9 @@ namespace Codex.Dispatcher
 
         void Dispatch(object dto, bool buildDecorator = true);
 
-        Task DispatchAsync<TDto>(TDto dto, CancellationToken token = default, bool buildDecorator = true);
+        Task DispatchAsync<TDto>(TDto dto, bool buildDecorator = true, CancellationToken token = default);
 
-        Task DispatchAsync(object dto, CancellationToken token = default, bool buildDecorator = true);
+        Task DispatchAsync(object dto, bool buildDecorator = true, CancellationToken token = default);
 
         ResultOr<TOut, TError> DispatchResult<TDto, TOut, TError>(TDto dto, bool buildDecorator = true)
             where TError : class
@@ -18,10 +18,10 @@ namespace Codex.Dispatcher
 
         object DispatchResult(object dto, bool buildDecorator = true);
 
-        Task<ResultOr<TOut, TError>> DispatchResultAsync<TDto, TOut, TError>(TDto dto, CancellationToken token = default, bool buildDecorator = true)
+        Task<ResultOr<TOut, TError>> DispatchResultAsync<TDto, TOut, TError>(TDto dto, bool buildDecorator = true, CancellationToken token = default)
             where TError : class
             where TDto : IDtoContract<TOut, TError>;
 
-        Task<object> DispatchResultAsync(object dto, CancellationToken token = default, bool buildDecorator = true);
+        Task<object> DispatchResultAsync(object dto, bool buildDecorator = true, CancellationToken token = default);
     }
 }

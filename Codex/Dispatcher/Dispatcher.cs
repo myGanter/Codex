@@ -11,16 +11,16 @@ namespace Codex.Dispatcher
     public class Dispatcher : IDispatcher
     {
         private static readonly ConcurrentDictionary<Type, Action<Dispatcher, object, bool>> _dynamicDispatchCache;
-        private static readonly ConcurrentDictionary<Type, Func<Dispatcher, object, CancellationToken, bool, Task>> _dynamicDispatchAsyncCache;
+        private static readonly ConcurrentDictionary<Type, Func<Dispatcher, object, bool, CancellationToken, Task>> _dynamicDispatchAsyncCache;
         private static readonly ConcurrentDictionary<Type, Func<Dispatcher, object, bool, object>> _dynamicDispatchResultCache;
-        private static readonly ConcurrentDictionary<Type, Func<Dispatcher, object, CancellationToken, bool, Task<object>>> _dynamicDispatchResultAsyncCache;
+        private static readonly ConcurrentDictionary<Type, Func<Dispatcher, object, bool, CancellationToken, Task<object>>> _dynamicDispatchResultAsyncCache;
 
         static Dispatcher()
         {
             _dynamicDispatchCache = new ConcurrentDictionary<Type, Action<Dispatcher, object, bool>>();
-            _dynamicDispatchAsyncCache = new ConcurrentDictionary<Type, Func<Dispatcher, object, CancellationToken, bool, Task>>();
+            _dynamicDispatchAsyncCache = new ConcurrentDictionary<Type, Func<Dispatcher, object, bool, CancellationToken, Task>>();
             _dynamicDispatchResultCache = new ConcurrentDictionary<Type, Func<Dispatcher, object, bool, object>>();
-            _dynamicDispatchResultAsyncCache = new ConcurrentDictionary<Type, Func<Dispatcher, object, CancellationToken, bool, Task<object>>>();
+            _dynamicDispatchResultAsyncCache = new ConcurrentDictionary<Type, Func<Dispatcher, object, bool, CancellationToken, Task<object>>>();
         }
 
         private readonly IDiAdapter _diAdapter;
@@ -59,33 +59,33 @@ namespace Codex.Dispatcher
             dispatchAction(this, dto, buildDecorator);
         }
 
-        public async Task DispatchAsync<TDto>(TDto dto, CancellationToken token = default, bool buildDecorator = true)
+        public async Task DispatchAsync<TDto>(TDto dto, bool buildDecorator = true, CancellationToken token = default)
         {
             var handler = BuildHandler<IAsyncHandler<TDto>>(buildDecorator);
 
             await handler.HandleAsync(dto, token);
         }
 
-        private async Task DispatchAsyncAdapter<TDto>(object dto, CancellationToken token = default, bool buildDecorator = true)
+        private async Task DispatchAsyncAdapter<TDto>(object dto, bool buildDecorator = true, CancellationToken token = default)
         {
-            await DispatchAsync((TDto)dto, token, buildDecorator);
+            await DispatchAsync((TDto)dto, buildDecorator, token);
         }
 
-        public async Task DispatchAsync(object dto, CancellationToken token = default, bool buildDecorator = true)
+        public async Task DispatchAsync(object dto, bool buildDecorator = true, CancellationToken token = default)
         {
             if (dto is null)
                 throw new ArgumentNullException(nameof(dto));
 
             var dtoType = dto.GetType();
 
-            if (!_dynamicDispatchAsyncCache.TryGetValue(dtoType, out Func<Dispatcher, object, CancellationToken, bool, Task>? dispatchAction))
+            if (!_dynamicDispatchAsyncCache.TryGetValue(dtoType, out Func<Dispatcher, object, bool, CancellationToken, Task>? dispatchAction))
             {
-                dispatchAction = CreateDispatchAction<Func<Dispatcher, object, CancellationToken, bool, Task>>(nameof(DispatchAsyncAdapter), dtoType);
+                dispatchAction = CreateDispatchAction<Func<Dispatcher, object, bool, CancellationToken, Task >>(nameof(DispatchAsyncAdapter), dtoType);
 
                 _dynamicDispatchAsyncCache.TryAdd(dtoType, dispatchAction);
             }
 
-            await dispatchAction(this, dto, token, buildDecorator);
+            await dispatchAction(this, dto, buildDecorator, token);
         }
 
         public ResultOr<TOut, TError> DispatchResult<TDto, TOut, TError>(TDto dto, bool buildDecorator = true)
@@ -129,7 +129,7 @@ namespace Codex.Dispatcher
             return dispatchAction(this, dto, buildDecorator);
         }
 
-        public async Task<ResultOr<TOut, TError>> DispatchResultAsync<TDto, TOut, TError>(TDto dto, CancellationToken token = default, bool buildDecorator = true)
+        public async Task<ResultOr<TOut, TError>> DispatchResultAsync<TDto, TOut, TError>(TDto dto, bool buildDecorator = true, CancellationToken token = default)
             where TDto : IDtoContract<TOut, TError>
             where TError : class
         {
@@ -138,14 +138,14 @@ namespace Codex.Dispatcher
             return await handler.HandleAsync(dto, token);
         }
 
-        private async Task<object> DispatchResultAsyncAdapter<TDto, TOut, TError>(object dto, CancellationToken token = default, bool buildDecorator = true)
+        private async Task<object> DispatchResultAsyncAdapter<TDto, TOut, TError>(object dto, bool buildDecorator = true, CancellationToken token = default)
             where TDto : IDtoContract<TOut, TError>
             where TError : class
         {
-            return await DispatchResultAsync<TDto, TOut, TError>((TDto)dto, token, buildDecorator);
+            return await DispatchResultAsync<TDto, TOut, TError>((TDto)dto, buildDecorator, token);
         }
 
-        public async Task<object> DispatchResultAsync(object dto, CancellationToken token = default, bool buildDecorator = true)
+        public async Task<object> DispatchResultAsync(object dto, bool buildDecorator = true, CancellationToken token = default)
         {
             if (dto is null)
                 throw new ArgumentNullException(nameof(dto));
@@ -157,17 +157,17 @@ namespace Codex.Dispatcher
             if (dtoContract is null)
                 throw CreateContractExceprion();
 
-            if (!_dynamicDispatchResultAsyncCache.TryGetValue(dtoType, out Func<Dispatcher, object, CancellationToken, bool, Task<object>>? dispatchAction))
+            if (!_dynamicDispatchResultAsyncCache.TryGetValue(dtoType, out Func<Dispatcher, object, bool, CancellationToken, Task<object>>? dispatchAction))
             {
                 var contractTypes = dtoContract.GetGenericArguments();
 
-                dispatchAction = CreateDispatchAction<Func<Dispatcher, object, CancellationToken, bool, Task<object>>>(nameof(DispatchResultAsyncAdapter),
+                dispatchAction = CreateDispatchAction<Func<Dispatcher, object, bool, CancellationToken, Task<object>>>(nameof(DispatchResultAsyncAdapter),
                     dtoType, contractTypes[0], contractTypes[1]);
 
                 _dynamicDispatchResultAsyncCache.TryAdd(dtoType, dispatchAction);
             }
 
-            return await dispatchAction(this, dto, token, buildDecorator);
+            return await dispatchAction(this, dto, buildDecorator, token);
         }
 
         private static DispatchException CreateContractExceprion()

@@ -24,6 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Codex.AspNet.EntityFrameworkCore\Codex.AspNet.EntityFrameworkCore.csproj" />
     <ProjectReference Include="..\Codex.AspNet\Codex.AspNet.csproj" />
   </ItemGroup>
 

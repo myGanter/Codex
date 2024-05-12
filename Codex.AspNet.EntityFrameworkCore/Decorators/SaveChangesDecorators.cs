@@ -2,13 +2,13 @@
 using Codex.Dtos;
 using Microsoft.EntityFrameworkCore;
 
-namespace Codex.AspNet.Decorators
+namespace Codex.AspNet.EntityFrameworkCore.Decorators
 {
     public class SaveChangesDecorator<TDto> : HandlerDecorator<TDto>
     {
         private readonly DbContext _context;
 
-        public SaveChangesDecorator(DbContext context) 
+        public SaveChangesDecorator(DbContext context)
         {
             _context = context;
         }

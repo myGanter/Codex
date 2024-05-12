@@ -1,5 +1,5 @@
-﻿using Codex.AspNet.Decorators;
-using Codex.AspNet.Dtos;
+﻿using Codex.AspNet.Dtos;
+using Codex.AspNet.EntityFrameworkCore.Decorators;
 using Codex.AspNet.Tests.DataAccess.Models;
 using Codex.AspNet.Tests.Infrastructure;
 using Codex.Cache;

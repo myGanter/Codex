@@ -1,47 +1,47 @@
-﻿using Codex.AspNet.Services;
+﻿using Codex.AspNet.EntityFrameworkCore.Services;
 using Codex.CQRS;
 using Codex.Dispatcher;
 using Codex.Dtos;
 
-namespace Codex.AspNet.Decorators
+namespace Codex.AspNet.EntityFrameworkCore.Decorators
 {
-    public class CommitTransactionDecorator<TDto> : HandlerDecorator<TDto>
+    public class BeginTransactionDecorator<TDto> : HandlerDecorator<TDto>
     {
         private readonly TransactionService _transactionService;
 
-        public CommitTransactionDecorator(IDiAdapter diAdapter)
+        public BeginTransactionDecorator(IDiAdapter diAdapter)
         {
             _transactionService = TransactionService.CreateService(diAdapter);
         }
 
         protected override void DecorateAction(TDto dto)
         {
-            _transactionService.CommitTransaction();
+            _transactionService.BeginTransaction();
         }
     }
 
-    public class AsyncCommitTransactionDecorator<TDto> : AsyncHandlerDecorator<TDto>
+    public class AsyncBeginTransactionDecorator<TDto> : AsyncHandlerDecorator<TDto>
     {
         private readonly TransactionService _transactionService;
 
-        public AsyncCommitTransactionDecorator(IDiAdapter diAdapter)
+        public AsyncBeginTransactionDecorator(IDiAdapter diAdapter)
         {
             _transactionService = TransactionService.CreateService(diAdapter);
         }
 
         protected override Task DecorateActionAsync(TDto dto, CancellationToken token)
         {
-            return _transactionService.CommitTransactionAsync(token);
+            return _transactionService.BeginTransactionAsync(token);
         }
     }
 
-    public class CommitTransactionDecorator<TDto, TOut, TError> : HandlerDecorator<TDto, TOut, TError>
+    public class BeginTransactionDecorator<TDto, TOut, TError> : HandlerDecorator<TDto, TOut, TError>
         where TError : class
         where TDto : IDtoContract<TOut, TError>
     {
         private readonly TransactionService _transactionService;
 
-        public CommitTransactionDecorator(IDiAdapter diAdapter)
+        public BeginTransactionDecorator(IDiAdapter diAdapter)
         {
             _transactionService = TransactionService.CreateService(diAdapter);
         }
@@ -50,20 +50,20 @@ namespace Codex.AspNet.Decorators
         {
             return dto.Out.Match(x =>
             {
-                _transactionService.CommitTransaction();
+                _transactionService.BeginTransaction();
 
                 return dto.Out;
             });
         }
     }
 
-    public class AsyncCommitTransactionDecorator<TDto, TOut, TError> : AsyncHandlerDecorator<TDto, TOut, TError>
+    public class AsyncBeginTransactionDecorator<TDto, TOut, TError> : AsyncHandlerDecorator<TDto, TOut, TError>
         where TError : class
         where TDto : IDtoContract<TOut, TError>
     {
         private readonly TransactionService _transactionService;
 
-        public AsyncCommitTransactionDecorator(IDiAdapter diAdapter)
+        public AsyncBeginTransactionDecorator(IDiAdapter diAdapter)
         {
             _transactionService = TransactionService.CreateService(diAdapter);
         }
@@ -72,7 +72,7 @@ namespace Codex.AspNet.Decorators
         {
             return dto.Out.MatchAsync(async x =>
             {
-                await _transactionService.CommitTransactionAsync(token);
+                await _transactionService.BeginTransactionAsync(token);
 
                 return dto.Out;
             });

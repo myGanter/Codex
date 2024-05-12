@@ -1,4 +1,5 @@
-﻿using Codex.AspNet.Tests.DataAccess;
+﻿using Codex.AspNet.EntityFrameworkCore;
+using Codex.AspNet.Tests.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -11,6 +12,7 @@ namespace Codex.AspNet.Tests.Infrastructure
             var services = new ServiceCollection();
 
             services.AddCodex();
+            services.AddCodexEntityFrameworkCore();
 
             services.AddDbContext<DbContext, CodexAspNetTestsSQLiteContext>(x => x.UseSqlite("Data Source=.\\CodexAspNetTests.db"));
 

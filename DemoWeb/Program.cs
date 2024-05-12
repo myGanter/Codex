@@ -1,6 +1,7 @@
 using Codex.AspNet;
 using Codex.AspNet.Decorators;
 using Codex.AspNet.Dtos;
+using Codex.AspNet.EntityFrameworkCore;
 using Codex.Cache;
 using Codex.CQRS;
 using DemoWeb.Controllers;
@@ -23,6 +24,7 @@ builder.Services.AddDbContext<DbContext, DemoWebSQLiteContext>(x => x.UseSqlite(
 
 //Codex infrastructure
 builder.Services.AddCodex();
+builder.Services.AddCodexEntityFrameworkCore();
 
 //Handlers & decorators
 builder.Services.AddScoped<IAsyncHandler<ParseNumberDto, string, ErrorDto>, ParseNumberAsyncHandler>();

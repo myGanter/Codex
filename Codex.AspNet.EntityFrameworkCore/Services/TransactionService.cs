@@ -4,7 +4,7 @@ using Codex.Exceptions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 
-namespace Codex.AspNet.Services
+namespace Codex.AspNet.EntityFrameworkCore.Services
 {
     internal class TransactionService : IAsyncDisposable
     {
@@ -49,7 +49,7 @@ namespace Codex.AspNet.Services
                 _transactionStore.Push(_transactionStore.Count == 0 ?
                     _context.Database.BeginTransaction() :
                     new EmptyTransaction());
-            }                
+            }
         }
 
         public async Task BeginTransactionAsync(CancellationToken token)
@@ -74,7 +74,7 @@ namespace Codex.AspNet.Services
 
                     transaction.Dispose();
                 }
-            }            
+            }
         }
 
         public async Task CommitTransactionAsync(CancellationToken token)
@@ -89,7 +89,7 @@ namespace Codex.AspNet.Services
 
                     await transaction.DisposeAsync();
                 }
-            }            
+            }
         }
 
         public async ValueTask DisposeAsync()

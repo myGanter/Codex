@@ -32,8 +32,8 @@ exec { & dotnet build -c Release }
 
 exec { & dotnet test -c Release --no-build -l trx --verbosity=normal }
 
-exec { & dotnet pack .\Codex\Codex.csproj -c Release -o $artifacts --no-build }
+exec { & dotnet pack .\CodexCQRS\CodexCQRS.csproj -c Release -o $artifacts --no-build }
 
-exec { & dotnet pack .\Codex.AspNet\Codex.AspNet.csproj -c Release -o $artifacts --no-build }
+exec { & dotnet pack .\CodexCQRS.AspNet\CodexCQRS.AspNet.csproj -c Release -o $artifacts --no-build }
 
-exec { & dotnet pack .\Codex.AspNet.EntityFrameworkCore\Codex.AspNet.EntityFrameworkCore.csproj -c Release -o $artifacts --no-build }
+exec { & dotnet pack .\CodexCQRS.AspNet.EntityFrameworkCore\CodexCQRS.AspNet.EntityFrameworkCore.csproj -c Release -o $artifacts --no-build }

@@ -1,9 +1,9 @@
-using Codex.AspNet;
-using Codex.AspNet.Decorators;
-using Codex.AspNet.Dtos;
-using Codex.AspNet.EntityFrameworkCore;
-using Codex.Cache;
-using Codex.CQRS;
+using CodexCQRS.AspNet;
+using CodexCQRS.AspNet.Decorators;
+using CodexCQRS.AspNet.Dtos;
+using CodexCQRS.AspNet.EntityFrameworkCore;
+using CodexCQRS.Cache;
+using CodexCQRS.CQRS;
 using DemoWeb.Controllers;
 using DemoWeb.DataAccess;
 using Microsoft.EntityFrameworkCore;

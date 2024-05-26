@@ -1,11 +1,11 @@
-﻿using Codex.CQRS;
-using Codex.Extensions;
-using Codex.Dispatcher;
-using Codex.Dtos;
+﻿using CodexCQRS.CQRS;
+using CodexCQRS.Extensions;
+using CodexCQRS.Dispatcher;
+using CodexCQRS.Dtos;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 using System.Globalization;
-using Codex.AspNet.Dtos;
+using CodexCQRS.AspNet.Dtos;
 
 namespace DemoWeb.Controllers
 {

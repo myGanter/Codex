@@ -8,7 +8,10 @@
     <Authors>myGanter</Authors>
     <Description>Lightweight CQRS engine with decorators and pipeline</Description>
     <RepositoryUrl>https://github.com/myGanter/Codex</RepositoryUrl>
-    <PackageTags>cqrs;decorators;pipelines;lite;dotnet;asp-net;</PackageTags>
+    <PackageTags>cqrs;decorators;pipelines;lite;dotnet;asp-net;ef;</PackageTags>
+	<AssemblyVersion>1.0.1.0</AssemblyVersion>
+	<FileVersion>$(AssemblyVersion)</FileVersion>
+	<Version>$(AssemblyVersion)</Version>
   </PropertyGroup>
 
   <ItemGroup>

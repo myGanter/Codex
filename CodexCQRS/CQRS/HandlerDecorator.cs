@@ -8,7 +8,7 @@ namespace CodexCQRS.CQRS
     {
         bool IHandlerDecorator<IHandler<TDto>>.IsAfter { get; set; }
 
-        IHandler<TDto> IHandlerDecorator<IHandler<TDto>>.DecorateHandler { get; set; }
+        IHandler<TDto> IHandlerDecorator<IHandler<TDto>>.DecorateHandler { get; set; } = null!;
 
         public virtual void Handle(TDto dto)
         {
@@ -32,7 +32,7 @@ namespace CodexCQRS.CQRS
     {
         bool IHandlerDecorator<IAsyncHandler<TDto>>.IsAfter { get; set; }
 
-        IAsyncHandler<TDto> IHandlerDecorator<IAsyncHandler<TDto>>.DecorateHandler { get; set; }
+        IAsyncHandler<TDto> IHandlerDecorator<IAsyncHandler<TDto>>.DecorateHandler { get; set; } = null!;
 
         public virtual async Task HandleAsync(TDto dto, CancellationToken token = default)
         {
@@ -60,7 +60,7 @@ namespace CodexCQRS.CQRS
     {
         bool IHandlerDecorator<IHandler<TDto, TOut, TError>>.IsAfter { get; set; }
 
-        IHandler<TDto, TOut, TError> IHandlerDecorator<IHandler<TDto, TOut, TError>>.DecorateHandler { get; set; }
+        IHandler<TDto, TOut, TError> IHandlerDecorator<IHandler<TDto, TOut, TError>>.DecorateHandler { get; set; } = null!;
 
         public virtual ResultOr<TOut, TError> Handle(TDto dto)
         {
@@ -95,7 +95,7 @@ namespace CodexCQRS.CQRS
     {
         bool IHandlerDecorator<IAsyncHandler<TDto, TOut, TError>>.IsAfter { get; set; }
 
-        IAsyncHandler<TDto, TOut, TError> IHandlerDecorator<IAsyncHandler<TDto, TOut, TError>>.DecorateHandler { get; set; }
+        IAsyncHandler<TDto, TOut, TError> IHandlerDecorator<IAsyncHandler<TDto, TOut, TError>>.DecorateHandler { get; set; } = null!;
 
         public virtual async Task<ResultOr<TOut, TError>> HandleAsync(TDto dto, CancellationToken token = default)
         {

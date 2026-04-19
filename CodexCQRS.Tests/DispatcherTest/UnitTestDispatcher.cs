@@ -6,8 +6,7 @@ using CodexCQRS.Tests.Infrastructure;
 
 namespace CodexCQRS.Tests.DispatcherTest
 {
-    [TestCaseOrderer(ordererTypeName: "CodexCQRS.Tests.Infrastructure.PriorityOrderer",
-        ordererAssemblyName: "CodexCQRS.Tests")]
+    [TestCaseOrderer(ordererType: typeof(PriorityOrderer))]
     public class UnitTestDispatcher
     {
         private static readonly TestDiAdapter _diAdapter;

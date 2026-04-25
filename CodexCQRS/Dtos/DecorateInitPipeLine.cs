@@ -11,13 +11,16 @@
 
     public sealed class DecorateInitPipeLine
     {
-        internal DecorateInitPipeLine(Type handlerType, Type interfaceHandlerType) 
+        internal DecorateInitPipeLine(Type handlerType, Type handlerKeyTypeForCache, Type interfaceHandlerType) 
         {
             HandlerType = handlerType;
             InterfaceHandlerType = interfaceHandlerType;
+            HandlerKeyTypeForCache = handlerKeyTypeForCache;
         }
 
         internal Type HandlerType { get; set; }
+
+        internal Type HandlerKeyTypeForCache { get; set; }
 
         internal Type InterfaceHandlerType { get; set; }
 

@@ -189,9 +189,6 @@ namespace CodexCQRS.Dispatcher
         private THandler BuildHandler<THandler>(bool buildDecorator)
             where THandler : class
         {
-            var afterDecorators = StaticKeyHashSetCache<THandler, DecorateAfterPipeLine>.Values;
-            var beforeDecoratots = StaticKeyHashSetCache<THandler, DecorateBeforePipeLine>.Values;
-
             var handler = _diAdapter.Create<THandler>();
 
             if (handler is null)
@@ -200,13 +197,18 @@ namespace CodexCQRS.Dispatcher
             if (!buildDecorator)
                 return handler;
 
-            if (!afterDecorators.Any() && !beforeDecoratots.Any())
-            {
-                var handlerType = handler.GetType();
-                var key = new StringInfoTypeDto(handlerType.Name, handlerType.Namespace);
+            var afterDecorators = StaticKeyHashSetCache<THandler, DecorateAfterPipeLine>.Values;
+            var beforeDecoratots = StaticKeyHashSetCache<THandler, DecorateBeforePipeLine>.Values;
 
-                StaticDictionaryHashSetCache<StringInfoTypeDto, DecorateAfterPipeLine>.TryGet(key, out ReadOnlyCollection<DecorateAfterPipeLine> dynamicAfterDecorators);
-                StaticDictionaryHashSetCache<StringInfoTypeDto, DecorateBeforePipeLine>.TryGet(key, out ReadOnlyCollection<DecorateBeforePipeLine> dynamicBeforeDecoratots);
+            if (afterDecorators.Count == 0 && beforeDecoratots.Count == 0)
+            {
+                var handlerKeyType = handler.GetType();
+
+                if (handlerKeyType.IsGenericType)
+                    handlerKeyType = handlerKeyType.GetGenericTypeDefinition();
+
+                StaticDictionaryHashSetCache<Type, DecorateAfterPipeLine>.TryGet(handlerKeyType, out ReadOnlyCollection<DecorateAfterPipeLine> dynamicAfterDecorators);
+                StaticDictionaryHashSetCache<Type, DecorateBeforePipeLine>.TryGet(handlerKeyType, out ReadOnlyCollection<DecorateBeforePipeLine> dynamicBeforeDecoratots);
 
                 if (dynamicAfterDecorators.Any() || dynamicBeforeDecoratots.Any())
                 {

@@ -78,42 +78,47 @@ namespace CodexCQRS.Cache
 
         public static DecorateInitPipeLine FromHandlerType(Type handlerType)
         {
-            var iHandlerType = ValidateAndGetHandlerInterfaceType(handlerType);
+            var handlerInfo = ValidateAndGetHandlerInterfaceType(handlerType);
 
-            return new DecorateInitPipeLine(handlerType, iHandlerType);
+            return new DecorateInitPipeLine(handlerType, handlerInfo.HandlerKeyTypeForCache, handlerInfo.InterfaceHandlerType);
         }
 
-        private static Type ValidateAndGetHandlerInterfaceType(Type handlerType)
+        private static (Type InterfaceHandlerType, Type HandlerKeyTypeForCache) ValidateAndGetHandlerInterfaceType(Type handlerType)
         {
             if (handlerType is null)
                 throw new ArgumentNullException(nameof(handlerType));
 
-            var stringTypeInfo = new StringInfoTypeDto(handlerType.Name, handlerType.Namespace);
+            if (handlerType.IsInterface)
+                throw new DecorateInitException("The handler type should be an implementation, not an interface.");
 
-            if (StaticDictionaryHashSetCache<StringInfoTypeDto, DecorateAfterPipeLine>.ContainsKey(stringTypeInfo) ||
-                StaticDictionaryHashSetCache<StringInfoTypeDto, DecorateBeforePipeLine>.ContainsKey(stringTypeInfo))
+            var handlerKeyType = handlerType;
+
+            if (handlerType.IsGenericType)
+            {
+                if (!handlerType.IsGenericTypeDefinition)
+                    throw new DecorateInitException("The handler type must not have generic types initialized.");
+
+                handlerKeyType = handlerKeyType.GetGenericTypeDefinition();
+            }
+
+            if (StaticDictionaryHashSetCache<Type, DecorateAfterPipeLine>.ContainsKey(handlerKeyType) ||
+                StaticDictionaryHashSetCache<Type, DecorateBeforePipeLine>.ContainsKey(handlerKeyType))
                 throw new DecorateInitException($"There is already a pipeline for the {handlerType.FullName} handler.");
 
             var iHandlerType = typeof(IHandler<>);
             var iAsyncHandlerType = typeof(IAsyncHandler<>);
             var iResultHandlerType = typeof(IHandler<,,>);
-            var iResultAsyncHandlerType = typeof(IAsyncHandler<,,>);            
-
-            if (handlerType.IsInterface)
-                throw new DecorateInitException("The handler type should be an implementation, not an interface.");
-
-            if (handlerType.IsGenericType && !handlerType.IsGenericTypeDefinition)
-                throw new DecorateInitException("The handler type must not have generic types initialized.");
+            var iResultAsyncHandlerType = typeof(IAsyncHandler<,,>); 
 
             var interfaces = handlerType.GetInterfaces();
 
-            Type? res = interfaces.FirstOrDefault(x => (x.Name == iResultAsyncHandlerType.Name && x.Namespace == iResultAsyncHandlerType.Namespace) ||
+            Type? interfaceHandlerType = interfaces.FirstOrDefault(x => (x.Name == iResultAsyncHandlerType.Name && x.Namespace == iResultAsyncHandlerType.Namespace) ||
                 (x.Name == iResultHandlerType.Name && x.Namespace == iResultHandlerType.Namespace) ||
                 (x.Name == iAsyncHandlerType.Name && x.Namespace == iAsyncHandlerType.Namespace) ||
                 (x.Name == iHandlerType.Name && x.Namespace == iHandlerType.Namespace));
 
-            if (res is not null)
-                return res;
+            if (interfaceHandlerType is not null)
+                return (interfaceHandlerType, handlerKeyType);
 
             throw new DecorateInitException("The passed type does not implement any of the handler interfaces.");
         }
@@ -171,7 +176,7 @@ namespace CodexCQRS.Cache
                 Order = getOrder(pipeLine)
             };
 
-            StaticDictionaryHashSetCache<StringInfoTypeDto, TPipe>.Add(new StringInfoTypeDto(pipeLine.HandlerType.Name, pipeLine.HandlerType.Namespace), decoratePipeLine);
+            StaticDictionaryHashSetCache<Type, TPipe>.Add(pipeLine.HandlerKeyTypeForCache, decoratePipeLine);
         }
     }
 }

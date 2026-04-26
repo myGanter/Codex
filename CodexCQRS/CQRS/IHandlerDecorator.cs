@@ -2,8 +2,8 @@
 {
     public interface IHandlerDecorator<THandler>
     {
-        bool IsAfter { get; set; }
+        public abstract bool IsAfter { get; set; }
 
-        THandler DecorateHandler { get; set; }
+        public abstract THandler DecorateHandler { get; set; }
     }
 }

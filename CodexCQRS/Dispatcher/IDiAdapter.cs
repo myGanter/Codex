@@ -2,9 +2,9 @@
 {
     public interface IDiAdapter
     {
-        object? Create(Type type);
+        public abstract object? Create(Type type);
 
-        TService? Create<TService>()
+        public abstract TService? Create<TService>()
             where TService : class;
     }
 }

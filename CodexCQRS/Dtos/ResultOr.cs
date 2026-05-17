@@ -31,7 +31,7 @@
             if (IsSuccess)
                 onSuccess(Result);
             else
-                onError(Error);
+                onError(Error!);
         }
 
         public T Match<T>(Func<TResult?, T> onSuccess, Func<TError, T> onError)
@@ -39,7 +39,7 @@
             if (IsSuccess)
                 return onSuccess(Result);
 
-            return onError(Error);
+            return onError(Error!);
         }
 
         public ResultOr<T, TError> Match<T>(Func<TResult?, ResultOr<T, TError>> onSuccess, Func<TError, ResultOr<T, TError>> onError)
@@ -47,7 +47,7 @@
             if (IsSuccess)
                 return onSuccess(Result);
 
-            return onError(Error);
+            return onError(Error!);
         }
 
         public ResultOr<T, TError> Match<T>(Func<TResult?, ResultOr<T, TError>> onSuccess, Action<TError>? onErrorWithoutResult = null)
@@ -55,9 +55,9 @@
             if (IsSuccess)
                 return onSuccess(Result);
 
-            onErrorWithoutResult?.Invoke(Error);
+            onErrorWithoutResult?.Invoke(Error!);
 
-            return Error;
+            return Error!;
         }
 
         //Async versions
@@ -67,7 +67,7 @@
             if (IsSuccess)
                 return onSuccessAsync(Result);
             
-            return onErrorAsync(Error);
+            return onErrorAsync(Error!);
         }
 
         public Task<T> MatchAsync<T>(Func<TResult?, Task<T>> onSuccessAsync, Func<TError, Task<T>> onErrorAsync)
@@ -75,7 +75,7 @@
             if (IsSuccess)
                 return onSuccessAsync(Result);
 
-            return onErrorAsync(Error);
+            return onErrorAsync(Error!);
         }
 
         public Task<ResultOr<T, TError>> MatchAsync<T>(Func<TResult?, Task<ResultOr<T, TError>>> onSuccessAsync, Func<TError, Task<ResultOr<T, TError>>> onErrorAsync)
@@ -83,7 +83,7 @@
             if (IsSuccess)
                 return onSuccessAsync(Result);
 
-            return onErrorAsync(Error);
+            return onErrorAsync(Error!);
         }
 
         public async Task<ResultOr<T, TError>> MatchAsync<T>(Func<TResult?, Task<ResultOr<T, TError>>> onSuccessAsync, Func<TError, Task>? onErrorWithoutResultAsync = null)
@@ -92,9 +92,9 @@
                 return await onSuccessAsync(Result);
 
             if (onErrorWithoutResultAsync is not null)
-                await onErrorWithoutResultAsync.Invoke(Error);
+                await onErrorWithoutResultAsync.Invoke(Error!);
 
-            return Error;
+            return Error!;
         }
         #endregion
     }

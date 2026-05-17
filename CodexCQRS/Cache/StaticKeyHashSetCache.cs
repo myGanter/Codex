@@ -8,7 +8,7 @@ namespace CodexCQRS.Cache
 
         private static readonly ReadWriteLocker _locker;
 
-        private static Lazy<ReadOnlyCollection<TValue>> _readValues;
+        private static Lazy<ReadOnlyCollection<TValue>> _readValues = null!;
 
         public static ReadOnlyCollection<TValue> Values => _readValues.Value;
 

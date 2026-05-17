@@ -34,7 +34,7 @@ namespace CodexCQRS.Dispatcher
         {
             var handler = BuildHandler<IHandler<TDto>>(buildDecorator);
 
-            handler.Handle(dto);
+            handler.DecoratedHandler.Handle(dto);
         }
 
         private void DispatchAdapter<TDto>(object dto, bool buildDecorator = true)
@@ -59,11 +59,16 @@ namespace CodexCQRS.Dispatcher
             dispatchAction(this, dto, buildDecorator);
         }
 
+        public (IHandler<TDto> SourceHandler, IHandler<TDto> DecoratedHandler) BuildHandler<TDto>()
+        {
+            return BuildHandler<IHandler<TDto>>(true);
+        }
+
         public async Task DispatchAsync<TDto>(TDto dto, bool buildDecorator = true, CancellationToken token = default)
         {
             var handler = BuildHandler<IAsyncHandler<TDto>>(buildDecorator);
 
-            await handler.HandleAsync(dto, token);
+            await handler.DecoratedHandler.HandleAsync(dto, token);
         }
 
         private async Task DispatchAsyncAdapter<TDto>(object dto, bool buildDecorator = true, CancellationToken token = default)
@@ -88,13 +93,18 @@ namespace CodexCQRS.Dispatcher
             await dispatchAction(this, dto, buildDecorator, token);
         }
 
+        public (IAsyncHandler<TDto> SourceHandler, IAsyncHandler<TDto> DecoratedHandler) BuildAsyncHandler<TDto>()
+        {
+            return BuildHandler<IAsyncHandler<TDto>>(true);
+        }
+
         public ResultOr<TOut, TError> DispatchResult<TDto, TOut, TError>(TDto dto, bool buildDecorator = true)
             where TDto : IDtoContract<TOut, TError>
             where TError : class
         {
             var handler = BuildHandler<IHandler<TDto, TOut, TError>>(buildDecorator);
 
-            return handler.Handle(dto);
+            return handler.DecoratedHandler.Handle(dto);
         }
 
         private object DispatchResultAdapter<TDto, TOut, TError>(object dto, bool buildDecorator = true)
@@ -129,13 +139,20 @@ namespace CodexCQRS.Dispatcher
             return dispatchAction(this, dto, buildDecorator);
         }
 
+        public (IHandler<TDto, TOut, TError> SourceHandler, IHandler<TDto, TOut, TError> DecoratedHandler) BuildResultHandler<TDto, TOut, TError>()
+            where TDto : IDtoContract<TOut, TError>
+            where TError : class
+        {
+            return BuildHandler<IHandler<TDto, TOut, TError>>(true);
+        }
+
         public async Task<ResultOr<TOut, TError>> DispatchResultAsync<TDto, TOut, TError>(TDto dto, bool buildDecorator = true, CancellationToken token = default)
             where TDto : IDtoContract<TOut, TError>
             where TError : class
         {
             var handler = BuildHandler<IAsyncHandler<TDto, TOut, TError>>(buildDecorator);
 
-            return await handler.HandleAsync(dto, token);
+            return await handler.DecoratedHandler.HandleAsync(dto, token);
         }
 
         private async Task<object> DispatchResultAsyncAdapter<TDto, TOut, TError>(object dto, bool buildDecorator = true, CancellationToken token = default)
@@ -170,6 +187,13 @@ namespace CodexCQRS.Dispatcher
             return await dispatchAction(this, dto, buildDecorator, token);
         }
 
+        public (IAsyncHandler<TDto, TOut, TError> SourceHandler, IAsyncHandler<TDto, TOut, TError> DecoratedHandler) BuildAsyncResultHandler<TDto, TOut, TError>()
+            where TDto : IDtoContract<TOut, TError>
+            where TError : class
+        {
+            return BuildHandler<IAsyncHandler<TDto, TOut, TError>>(true);
+        }
+
         private static DispatchException CreateContractExceprion()
         {
             return new DispatchException($"The input dto does not implement the {typeof(IDtoContract<,>).Name} interface.");
@@ -179,34 +203,36 @@ namespace CodexCQRS.Dispatcher
             where TAction : Delegate
         {
             var method = typeof(Dispatcher)
-                    .GetMethods(BindingFlags.NonPublic | BindingFlags.Instance)
-                    .First(x => x.Name == adapterMethodName && x.IsGenericMethod);
+                .GetMethods(BindingFlags.NonPublic | BindingFlags.Instance)
+                .First(x => x.Name == adapterMethodName && x.IsGenericMethod);
 
             method = method.MakeGenericMethod(genericTypes);
             return (TAction)Delegate.CreateDelegate(typeof(TAction), method);
         }
 
-        private THandler BuildHandler<THandler>(bool buildDecorator)
+        private (THandler SourceHandler, THandler DecoratedHandler) BuildHandler<THandler>(bool buildDecorator)
             where THandler : class
         {
-            var afterDecorators = StaticKeyHashSetCache<THandler, DecorateAfterPipeLine>.Values;
-            var beforeDecoratots = StaticKeyHashSetCache<THandler, DecorateBeforePipeLine>.Values;
+            var sourceHandler = _diAdapter.Create<THandler>();
 
-            var handler = _diAdapter.Create<THandler>();
-
-            if (handler is null)
+            if (sourceHandler is null)
                 throw new DispatchException($"Handler {typeof(THandler).FullName} failed to create.");
 
             if (!buildDecorator)
-                return handler;
+                return (sourceHandler, sourceHandler);
 
-            if (!afterDecorators.Any() && !beforeDecoratots.Any())
+            var afterDecorators = StaticKeyHashSetCache<THandler, DecorateAfterPipeLine>.Values;
+            var beforeDecoratots = StaticKeyHashSetCache<THandler, DecorateBeforePipeLine>.Values;
+
+            if (afterDecorators.Count == 0 && beforeDecoratots.Count == 0)
             {
-                var handlerType = handler.GetType();
-                var key = new StringInfoTypeDto(handlerType.Name, handlerType.Namespace);
+                var handlerKeyType = sourceHandler.GetType();
 
-                StaticDictionaryHashSetCache<StringInfoTypeDto, DecorateAfterPipeLine>.TryGet(key, out ReadOnlyCollection<DecorateAfterPipeLine> dynamicAfterDecorators);
-                StaticDictionaryHashSetCache<StringInfoTypeDto, DecorateBeforePipeLine>.TryGet(key, out ReadOnlyCollection<DecorateBeforePipeLine> dynamicBeforeDecoratots);
+                if (handlerKeyType.IsGenericType)
+                    handlerKeyType = handlerKeyType.GetGenericTypeDefinition();
+
+                StaticDictionaryHashSetCache<Type, DecorateAfterPipeLine>.TryGet(handlerKeyType, out ReadOnlyCollection<DecorateAfterPipeLine> dynamicAfterDecorators);
+                StaticDictionaryHashSetCache<Type, DecorateBeforePipeLine>.TryGet(handlerKeyType, out ReadOnlyCollection<DecorateBeforePipeLine> dynamicBeforeDecoratots);
 
                 if (dynamicAfterDecorators.Any() || dynamicBeforeDecoratots.Any())
                 {
@@ -218,10 +244,10 @@ namespace CodexCQRS.Dispatcher
                 }
             }
 
-            handler = BuildPipeLine(handler, true, afterDecorators.OrderBy(x => x.Order));
-            handler = BuildPipeLine(handler, false, beforeDecoratots.OrderByDescending(x => x.Order));
+            var decoratedHandler = BuildPipeLine(sourceHandler, true, afterDecorators.OrderBy(x => x.Order));
+            decoratedHandler = BuildPipeLine(decoratedHandler, false, beforeDecoratots.OrderByDescending(x => x.Order));
 
-            return handler;
+            return (sourceHandler, decoratedHandler);
         }
 
         private static void InitDynamicDecorators<THandler, TPipe>(IEnumerable<DecoratePipeLine> pipeLineInfos)

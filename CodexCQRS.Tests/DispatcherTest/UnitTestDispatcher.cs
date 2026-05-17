@@ -6,8 +6,7 @@ using CodexCQRS.Tests.Infrastructure;
 
 namespace CodexCQRS.Tests.DispatcherTest
 {
-    [TestCaseOrderer(ordererTypeName: "CodexCQRS.Tests.Infrastructure.PriorityOrderer",
-        ordererAssemblyName: "CodexCQRS.Tests")]
+    [TestCaseOrderer(ordererType: typeof(PriorityOrderer))]
     public class UnitTestDispatcher
     {
         private static readonly TestDiAdapter _diAdapter;
@@ -167,6 +166,34 @@ namespace CodexCQRS.Tests.DispatcherTest
         }
 
         [Fact]
+        public void CheckBuildHandler()
+        {
+            var dto = new TestDto<uint>();
+            var expected = $"{nameof(TestDecorator<TestDto<uint>>)}2"
+                + $"{nameof(TestDecorator<TestDto<uint>>)}1"
+                + $"{nameof(TestDecorator<TestDto<uint>>)}2"
+                + $"{nameof(TestHandler<TestDto<uint>>)}"
+                + $"{nameof(TestDecorator<TestDto<uint>>)}1"
+                + $"{nameof(TestDecorator<TestDto<uint>>)}2"
+                + $"{nameof(TestDecorator<TestDto<uint>>)}2";
+
+            var handlers = _dispatcher.BuildHandler<TestDto<uint>>();
+
+            Assert.NotNull(handlers.SourceHandler);
+            Assert.NotNull(handlers.DecoratedHandler);
+
+            Assert.IsType<TestHandler<TestDto<uint>>>(handlers.SourceHandler);
+            Assert.IsType<TestDecorator2<TestDto<uint>>>(handlers.DecoratedHandler);
+
+            handlers.SourceHandler.Handle(dto);
+            Assert.Equal($"{nameof(TestHandler<TestDto<uint>>)}", dto.PipeLineLog);
+
+            dto.PipeLineLog = string.Empty;
+            handlers.DecoratedHandler.Handle(dto);
+            Assert.Equal(expected, dto.PipeLineLog);
+        }
+
+        [Fact]
         public void CheckAsyncDispatch()
         {
             var dto = new TestDto<uint>();
@@ -214,6 +241,34 @@ namespace CodexCQRS.Tests.DispatcherTest
             _dispatcher.DispatchAsync(dto, false, default).Wait();
 
             Assert.Equal(dto.PipeLineLog, expected);
+        }
+
+        [Fact]
+        public void CheckBuildAsyncHandler()
+        {
+            var dto = new TestDto<uint>();
+            var expected = $"{nameof(TestAsyncDecorator<TestDto<uint>>)}2"
+                + $"{nameof(TestAsyncDecorator<TestDto<uint>>)}1"
+                + $"{nameof(TestAsyncDecorator<TestDto<uint>>)}2"
+                + $"{nameof(TestAsyncHandler<TestDto<uint>>)}"
+                + $"{nameof(TestAsyncDecorator<TestDto<uint>>)}1"
+                + $"{nameof(TestAsyncDecorator<TestDto<uint>>)}2"
+                + $"{nameof(TestAsyncDecorator<TestDto<uint>>)}2";
+
+            var handlers = _dispatcher.BuildAsyncHandler<TestDto<uint>>();
+
+            Assert.NotNull(handlers.SourceHandler);
+            Assert.NotNull(handlers.DecoratedHandler);
+
+            Assert.IsType<TestAsyncHandler<TestDto<uint>>>(handlers.SourceHandler);
+            Assert.IsType<TestAsyncDecorator2<TestDto<uint>>>(handlers.DecoratedHandler);
+
+            handlers.SourceHandler.HandleAsync(dto).Wait();
+            Assert.Equal($"{nameof(TestAsyncHandler<TestDto<uint>>)}", dto.PipeLineLog);
+
+            dto.PipeLineLog = string.Empty;
+            handlers.DecoratedHandler.HandleAsync(dto).Wait();
+            Assert.Equal(expected, dto.PipeLineLog);
         }
 
         [Fact]
@@ -268,6 +323,34 @@ namespace CodexCQRS.Tests.DispatcherTest
         }
 
         [Fact]
+        public void CheckBuildResultHandler()
+        {
+            var dto = new TestDto<uint, uint>();
+            var expected = $"{nameof(TestResultDecorator<TestDto<uint, uint>, uint>)}2"
+                + $"{nameof(TestResultDecorator<TestDto<uint, uint>, uint>)}1"
+                + $"{nameof(TestResultDecorator<TestDto<uint, uint>, uint>)}2"
+                + $"{nameof(TestResultHandler<TestDto<uint, uint>, uint>)}"
+                + $"{nameof(TestResultDecorator<TestDto<uint, uint>, uint>)}1"
+                + $"{nameof(TestResultDecorator<TestDto<uint, uint>, uint>)}2"
+                + $"{nameof(TestResultDecorator<TestDto<uint, uint>, uint>)}2";
+
+            var handlers = _dispatcher.BuildResultHandler<TestDto<uint, uint>, uint, TestErrorResult>();
+
+            Assert.NotNull(handlers.SourceHandler);
+            Assert.NotNull(handlers.DecoratedHandler);
+
+            Assert.IsType<TestResultHandler<TestDto<uint, uint>, uint>>(handlers.SourceHandler);
+            Assert.IsType<TestResultDecorator2<TestDto<uint, uint>, uint>>(handlers.DecoratedHandler);
+
+            handlers.SourceHandler.Handle(dto);
+            Assert.Equal($"{nameof(TestResultHandler<TestDto<uint, uint>, uint>)}", dto.PipeLineLog);
+
+            dto.PipeLineLog = string.Empty;
+            handlers.DecoratedHandler.Handle(dto);
+            Assert.Equal(expected, dto.PipeLineLog);
+        }
+
+        [Fact]
         public void CheckDispatchAsyncResult()
         {
             var dto = new TestDto<uint, uint>();
@@ -316,6 +399,34 @@ namespace CodexCQRS.Tests.DispatcherTest
             _dispatcher.DispatchResultAsync<TestDto<uint, uint>, uint, TestErrorResult>(dto, false, default).Wait();
 
             Assert.Equal(dto.PipeLineLog, expected);
+        }
+
+        [Fact]
+        public void CheckBuildAsyncResultHandler()
+        {
+            var dto = new TestDto<uint, uint>();
+            var expected = $"{nameof(TestAsyncResultDecorator<TestDto<uint, uint>, uint>)}2"
+                + $"{nameof(TestAsyncResultDecorator<TestDto<uint, uint>, uint>)}1"
+                + $"{nameof(TestAsyncResultDecorator<TestDto<uint, uint>, uint>)}2"
+                + $"{nameof(TestAsyncResultHandler<TestDto<uint, uint>, uint>)}"
+                + $"{nameof(TestAsyncResultDecorator<TestDto<uint, uint>, uint>)}1"
+                + $"{nameof(TestAsyncResultDecorator<TestDto<uint, uint>, uint>)}2"
+                + $"{nameof(TestAsyncResultDecorator<TestDto<uint, uint>, uint>)}2";
+
+            var handlers = _dispatcher.BuildAsyncResultHandler<TestDto<uint, uint>, uint, TestErrorResult>();
+
+            Assert.NotNull(handlers.SourceHandler);
+            Assert.NotNull(handlers.DecoratedHandler);
+
+            Assert.IsType<TestAsyncResultHandler<TestDto<uint, uint>, uint>>(handlers.SourceHandler);
+            Assert.IsType<TestAsyncResultDecorator2<TestDto<uint, uint>, uint>>(handlers.DecoratedHandler);
+
+            handlers.SourceHandler.HandleAsync(dto).Wait();
+            Assert.Equal($"{nameof(TestAsyncResultHandler<TestDto<uint, uint>, uint>)}", dto.PipeLineLog);
+
+            dto.PipeLineLog = string.Empty;
+            handlers.DecoratedHandler.HandleAsync(dto).Wait();
+            Assert.Equal(expected, dto.PipeLineLog);
         }
     }
 }

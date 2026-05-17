@@ -6,7 +6,7 @@
 
         public int Order { get; init; }
 
-        public Type DecoratorType { get; init; }
+        public Type DecoratorType { get; init; } = null!;
 
         public bool Equals(DecoratePipeLine? other)
         {

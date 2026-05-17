@@ -5,6 +5,8 @@ namespace CodexCQRS.AspNet.Tests.DataAccess
 {
     internal class CodexAspNetTestsSQLiteContext : DbContext
     {
+        private static object _locker = new object();
+
         public DbSet<SaveChangesDecoratorModel> SaveChangesDecoratorModels { get; set; }
 
         public DbSet<TransactionDecoratorModel> TransactionDecoratorModels { get; set; }
@@ -12,7 +14,10 @@ namespace CodexCQRS.AspNet.Tests.DataAccess
         public CodexAspNetTestsSQLiteContext(DbContextOptions<CodexAspNetTestsSQLiteContext> options)
             : base(options)
         {
-            Database.EnsureCreated();
+            lock (_locker)
+            {
+                Database.EnsureCreated();
+            }
         }
     }
 }

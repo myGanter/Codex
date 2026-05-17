@@ -5,8 +5,7 @@ using CodexCQRS.Tests.Infrastructure;
 
 namespace CodexCQRS.Tests.DecoratorsPipeLineTest
 {
-    [TestCaseOrderer(ordererTypeName: "CodexCQRS.Tests.Infrastructure.PriorityOrderer",
-        ordererAssemblyName: "CodexCQRS.Tests")]
+    [TestCaseOrderer(ordererType: typeof(PriorityOrderer))]
     public class UnitTestDecoratorsPipeLine
     {
         [Fact]

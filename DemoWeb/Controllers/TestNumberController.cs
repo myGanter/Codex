@@ -10,13 +10,13 @@ using CodexCQRS.AspNet.Dtos;
 namespace DemoWeb.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
-    public class TestController : ControllerBase
+    [Route("api/[controller]")]
+    public class TestNumberController : ControllerBase
     {
-        private readonly ILogger<TestController> _logger;
+        private readonly ILogger<TestNumberController> _logger;
         private readonly IDispatcher _dispatcher;
 
-        public TestController(ILogger<TestController> logger,
+        public TestNumberController(ILogger<TestNumberController> logger,
             IDispatcher dispatcher)
         {
             _logger = logger;

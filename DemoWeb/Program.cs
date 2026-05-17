@@ -28,13 +28,20 @@ builder.Services.AddCodex();
 builder.Services.AddCodexEntityFrameworkCore();
 
 //Handlers & decorators
-builder.Services.AddScoped<IAsyncHandler<ParseNumberDto, string, ErrorDto>, ParseNumberAsyncHandler>();
+builder.Services.AddAsyncHandler<ParseNumberAsyncHandler, ParseNumberDto, string, ErrorDto>();
 builder.Services.AddDecorator(typeof(ParseNumberAfterDecorator));
+
+builder.Services.AddAsyncHandler<GenerateStringAsyncHandler, IGenerateStringAsyncHandler, GenerateStringDto, GenerateStringResultDto, ErrorDto>();
+builder.Services.AddDecorator(typeof(GenerateStringToUpperAsyncDecorator<>));
 
 //Configure pipeline
 DecoratorsPipeLine.FromAsyncHandler<ParseNumberDto, string, ErrorDto>()
     .Before<IAsyncHandler<ParseNumberDto, string, ErrorDto>, AsyncValidationDecorator<ParseNumberDto, string>>()
     .After<IAsyncHandler<ParseNumberDto, string, ErrorDto>, ParseNumberAfterDecorator>();
+
+DecoratorsPipeLine.FromHandlerType(typeof(GenerateStringAsyncHandler))
+    .Before(typeof(AsyncValidationDecorator<,>))
+    .After(typeof(GenerateStringToUpperAsyncDecorator<>));
 
 var app = builder.Build();
 
